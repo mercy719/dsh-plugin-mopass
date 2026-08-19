@@ -22,9 +22,15 @@ dsh plugin --profile web add file:./dsh-plugin-mopass-0.1.0.tgz
 
 `dsh plugin add` 会自动把包加进 profile 依赖，并把声明了 `dsh.bundle.patch` 的包追加到 `~/.dsh/profiles/web/package.json` 的 `dsh.profile.bundles` 列表，无需手改。重启 `dsh web` 即可（若用 dshmarket 安装，通常刷新页面即可）。
 
-### 方式二：发布后通过市场安装
+### 方式二：从 GitHub 安装
 
-把包发布到 npm（或 GitHub），用户在 **设置 → 插件市场** 里输入包名/仓库地址一键安装；dshmarket 会自动处理依赖与 bundles 列表。
+仓库：[https://github.com/mercy719/dsh-plugin-mopass](https://github.com/mercy719/dsh-plugin-mopass)（private，需要先被加为协作者）
+
+```sh
+dsh plugin --profile web add github:mercy719/dsh-plugin-mopass#main
+```
+
+> 注意：private 仓库的安装依赖你的 GitHub 凭据（pnpm 通过 git/gh 凭证拉取），且 `dsh plugin add` 自动追加 `dsh.profile.bundles`。发布到 npm 后也可直接用包名安装；dshmarket 用户可在 **设置 → 插件市场** 输入仓库地址或包名一键安装。
 
 > 提示：直接用 `pnpm`（不经 `dsh plugin`）在 profile 目录里装包不会更新 `dsh.profile.bundles`，需要自己把包名加进该列表。
 
