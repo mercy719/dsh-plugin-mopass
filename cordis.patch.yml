@@ -1,0 +1,80 @@
+# dsh-plugin-mopass — Leqee Mopass gateway provider.
+#
+# Applied as a bundle patch layer after dsh-base (order in dsh.profile.bundles).
+# Two operations:
+#   1. insert: mount this package's own plugin row (identity/diagnostics).
+#   2. patch `llm-pi-ai` by id: pin the `mopass` provider route as the
+#      composition BASE of the llm-pi-ai settings namespace. A non-insert
+#      patch REPLACES the targeted row's whole `config`, so this restates the
+#      complete llm-pi-ai configuration (the base row ships none; the base
+#      profile is documented as a row without config).
+#
+# The route carries apiKeyEnv MOPASS_API_KEY (resolved per request through
+# .credentials.yaml or the environment; the web Models page writes it). The
+# model list is only a default starting point mirroring Leqee's internal
+# setup: every user's key serves its own model set, so on the Models page the
+# user fetches available models from the gateway with their key and replaces
+# the list (a user-layer `models` list replaces this base list wholesale).
+#
+# compat lives at the route so models a user adopts from a fetch inherit the
+# DeepSeek wire dialect (thinking/thinkingFormat) this gateway speaks; kimi-k3
+# overrides it at model level because that route uses the OpenAI dialect.
+- insert:
+    - id: mopass
+      name: 'dsh-plugin-mopass'
+
+- id: llm-pi-ai
+  name: '@deepseek-ai/dsh-llm-pi-ai'
+  config:
+    providers:
+      mopass:
+        displayName: Mopass (Leqee)
+        apiKeyEnv: MOPASS_API_KEY
+        api: openai-completions
+        baseURL: https://mopass.leqeegroup.com
+        # Capacities a fetched model list inherits when the gateway's /models
+        # listing discloses only ids.
+        defaultContextWindow: 1048576
+        defaultMaxTokens: 384000
+        # Dialect the gateway expects for DeepSeek-family models; pi-ai would
+        # otherwise guess the OpenAI dialect from this private URL.
+        compat:
+          thinkingFormat: deepseek
+          supportsReasoningEffort: true
+        models:
+          - id: deepseek-v4-flash
+            name: DeepSeek V4 Flash (Mopass)
+            contextWindow: 1048576
+            maxTokens: 384000
+            reasoningEfforts:
+              low: low
+              high: high
+              max: max
+          - id: deepseek-v4-pro
+            name: DeepSeek V4 Pro (Mopass)
+            contextWindow: 1048576
+            maxTokens: 384000
+            reasoningEfforts:
+              high: high
+              max: max
+          - id: glm-5.2
+            name: GLM-5.2 (Mopass)
+            contextWindow: 1048576
+            maxTokens: 131072
+            reasoningEfforts:
+              high: high
+              max: max
+          - id: kimi-k3
+            name: Kimi K3 (Mopass)
+            contextWindow: 1048576
+            maxTokens: 131072
+            input:
+              - text
+              - image
+            reasoningEfforts:
+              low: low
+              high: high
+              max: max
+            compat:
+              thinkingFormat: openai
+              supportsReasoningEffort: true
