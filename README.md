@@ -95,7 +95,7 @@ llm-pi-ai:
 
 ## 开发
 
-- `cordis.patch.yml` 是唯一的运行时事实；`lib/index.js` 只是占位插件行（保持 bundle 可加载）。
+- `cordis.patch.yml` 是唯一的运行时事实；它只扩展现有的 `llm-pi-ai` 配置，不挂载独立运行时插件。`lib/index.js` 仅作为合法包入口供工具读取，因此 Mopass 不会成为 Web profile 的运行时强依赖。
 - 结构参考了 DSH 社区插件约定：`package.json` 声明 `dsh.bundle.patch` 指向 patch 文件，bundle 名加入 profile 的 `dsh.profile.bundles` 后即生效。
 - 注意 patch 语义：对已有行（如 `llm-pi-ai`）的 patch 会**整体替换**该行 `config`，因此本插件完整声明了自己的配置，不依赖其他层。
 
