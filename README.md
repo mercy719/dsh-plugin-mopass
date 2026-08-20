@@ -42,6 +42,42 @@ dsh plugin --profile web add github:mercy719/dsh-plugin-mopass#main
 
 之后在会话的模型选择器里选择 Mopass 的模型即可；每个用户拉到的列表不同，互不影响。
 
+## 每个用户的模型与 thinking 级别
+
+插件默认带的 4 个模型（`deepseek-v4-flash` / `deepseek-v4-pro` / `glm-5.2` / `kimi-k3`）已经在 `cordis.patch.yml` 里配好了 `reasoningEfforts`，所以**直接用默认模型时 thinking 级别开箱即用**，模型选择器里就能选。
+
+但如果你（或某个用户）在 Models 页面点 **获取可用模型** 用自己 Key 拉取并替换了模型列表，有一个注意点：**网关 `GET /models` 返回的候选通常只有 `{id, name, contextWindow}`，不带 `reasoningEfforts`**。一旦用拉取结果替换了默认列表，那些模型就不会再显示 thinking 级别选择器（适配器对没有 `reasoningEfforts` 元数据的模型不提供级别）。Models 页面也没有 reasoning 级别的输入框，所以需要手动改 `$DSH_HOME/settings.yaml` 补上。
+
+在 `settings.yaml` 的 `llm-pi-ai.providers.mopass.models` 里给拉取到的模型补 `reasoningEfforts`，例如：
+
+```yaml
+llm-pi-ai:
+  providers:
+    mopass:
+      models:
+        - id: deepseek-v4-flash
+          # 其他字段（name / contextWindow / maxTokens）可按页面保存的补上
+          reasoningEfforts:
+            low: low
+            high: high
+            max: max
+        - id: glm-5.2
+          reasoningEfforts:
+            high: high
+            max: max
+```
+
+参考级别（dsh-plugin-mopass 对已知模型声明的值）：
+
+| 模型 | `reasoningEfforts` |
+| --- | --- |
+| `deepseek-v4-flash` | `low: low` / `high: high` / `max: max` |
+| `deepseek-v4-pro` | `high: high` / `max: max` |
+| `glm-5.2` | `high: high` / `max: max` |
+| `kimi-k3` | `low: low` / `high: high` / `max: max` |
+
+> 说明：`reasoningEfforts` 的每个键是可选级别、值是网关线上拼写。这里网关对 DeepSeek 系模型用的是同名直传（`high: high`），`kimi-k3` 也同此规则。若某个模型在你的 Key 下实际只支持部分级别，只声明那几档即可。改动保存后重启 `dsh web`（或等待配置热重载）生效。
+
 ## 工作原理
 
 - 插件的 `cordis.patch.yml` 是 profile 的一个 bundle patch 层，它把 `mopass` 路由作为 `llm-pi-ai` 适配器的 **composition base** 注入：`api: openai-completions`、`baseURL: https://mopass.leqeegroup.com`、`apiKeyEnv: MOPASS_API_KEY`，以及该网关需要的 DeepSeek 方言 `compat`（`thinkingFormat: deepseek` + `supportsReasoningEffort`，`kimi-k3` 在模型级覆盖为 openai 方言）。
