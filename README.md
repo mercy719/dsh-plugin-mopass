@@ -80,7 +80,7 @@ llm-pi-ai:
 
 ## 工作原理
 
-- 插件的 `cordis.patch.yml` 是 profile 的一个 bundle patch 层，它把 `mopass` 路由作为 `llm-pi-ai` 适配器的 **composition base** 注入：`api: openai-completions`、`baseURL: https://mopass.leqeegroup.com`、`apiKeyEnv: MOPASS_API_KEY`，以及该网关需要的 DeepSeek 方言 `compat`（`thinkingFormat: deepseek` + `supportsReasoningEffort`，`kimi-k3` 在模型级覆盖为 openai 方言）。
+- 插件的 `cordis.patch.yml` 是 profile 的一个 bundle patch 层，它把 `mopass` 路由作为 `llm-pi-ai` 适配器的 **composition base** 注入：`api: openai-completions`、`baseURL: https://mopass.leqeegroup.com`、`apiKeyEnv: MOPASS_API_KEY`，以及该网关需要的 DeepSeek 方言 `compat`（`supportsDeveloperRole: false`、`thinkingFormat: deepseek` + `supportsReasoningEffort`，`kimi-k3` 在模型级覆盖为 openai 方言）。
 - 内置的模型列表只是默认起点（参考 Leqee 内部配置）：`deepseek-v4-flash`、`deepseek-v4-pro`、`glm-5.2`、`kimi-k3`。用户在 Models 页面保存的模型列表会**整体替换**这份默认列表，所以每个用户最终生效的模型就是自己 Key 能用的那批。
 - 未填 Key 时请求会以 `MISSING_CREDENTIAL` 明确失败，而不是静默走别的认证。
 

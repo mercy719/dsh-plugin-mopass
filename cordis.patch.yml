@@ -33,6 +33,8 @@
         # Dialect the gateway expects for DeepSeek-family models; pi-ai would
         # otherwise guess the OpenAI dialect from this private URL.
         compat:
+          # Mopass accepts `system` but rejects OpenAI's `developer` role.
+          supportsDeveloperRole: false
           thinkingFormat: deepseek
           supportsReasoningEffort: true
         models:
